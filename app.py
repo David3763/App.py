@@ -1,18 +1,21 @@
+
 # app.py
 import os
+import subprocess
 import streamlit as st
 from joblib import load
 
-MODEL_PATH = "modelo_spam.pkl"
+MODEL_PATH = os.path.join("models", "modelo_spam.pkl")
 
 # Configuração da página
 st.set_page_config(
     page_title="Lumen5 - Classificador de Texto",
     page_icon="✨",
-    layout="centered"
+    layout="centered",
+    initial_sidebar_state="expanded"
 )
 
-# Estilo customizado
+# Estilo customizado com CSS inline
 st.markdown(
     """
     <style>
@@ -48,10 +51,12 @@ st.markdown(
 # Título
 st.title("✨ Lumen5 – Detector de Spam em Mensagens")
 
-# Verificação do modelo
+# Verificação e treinamento do modelo
 if not os.path.exists(MODEL_PATH):
-    st.warning("⚠️ Modelo não encontrado. Rode o treino para gerar `modelo_spam.pkl`.")
-else:
+    st.warning("⚠️ Modelo não encontrado. Treinando agora, aguarde...")
+    subprocess.run(["python", "train.py"])
+
+if os.path.exists(MODEL_PATH):
     pipe = load(MODEL_PATH)
 
     with st.form("classificacao"):
@@ -65,7 +70,7 @@ else:
         else:
             st.success("✅ Essa mensagem parece **Normal (ham)**.")
 
-# Rodapé
+# Rodapé estilizado
 st.markdown("---")
 st.markdown(
     "<p style='text-align:center; color:gray;'>Feito com 💜 usando Streamlit · Projeto Lumen5</p>",
